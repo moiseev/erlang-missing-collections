@@ -5,10 +5,6 @@
     search/3
 ]).
 
--export([
-    words_test/0
-]).
-
 -include_lib("eunit/include/eunit.hrl").
 -include_lib("stdlib/include/assert.hrl").
 
@@ -39,10 +35,20 @@ search(Prefix, Trie, Item, Limit, Acc) ->
     end.
 
 words_test() ->
-    {ok, Bin} = file:read_file("/usr/share/dict/words"),
-    Words = string:split(Bin, "\n", all),
+    Words = get_the_words(),
 
     Trie = from_list(Words),
     ?assertEqual([<<"aardvark">>, <<"aardwolf">>], search(<<"aar">>, Trie, 3)),
     ?assertEqual([], search(<<"aar">>, Trie, 0)),
     ?assertEqual([], search(<<"zz">>, Trie, 5)).
+
+get_the_words() ->
+    Candidates = ["/usr/share/dict/words", "/usr/dict/words"],
+    Contents = [Bin || Path <- Candidates, {ok, Bin} <- [file:read_file(Path)]],
+    case Contents of
+        [Head | _] ->
+            string:split(Head, "\n", all);
+        _ ->
+            % Did not locate the words file
+            [<<"aa">>, <<"aardvark">>, <<"aardwolf">>, <<"armageddon">>]
+    end.
