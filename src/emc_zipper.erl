@@ -2,7 +2,9 @@
 
 -export([
     new/0,
+    new/1,
     from_list/1,
+    from_list/2,
     to_list/1,
     current/1,
     size/1,
@@ -16,11 +18,19 @@
     format_error/2
 ]).
 
+% lax - moving past either end of the collection is
+% impossible, the focus stays at the first/last element.
+% strict - moving past either end results in an error.
+% ring - moving past either end wraps around.
+-type mode() :: lax | strict | ring.
+-define(DEFAULT_MODE, lax).
+
 -record(zipper, {
     left,
     left_len,
     right,
-    right_len
+    right_len,
+    mode :: mode()
 }).
 
 -define(EMPTY_ERROR_INFO(Pos), {error_info, #{cause => #{Pos => "Empty zipper"}}}).
@@ -31,12 +41,19 @@
 new() ->
     from_list([]).
 
+new(Mode) ->
+    from_list([], Mode).
+
 from_list(Xs) ->
+    from_list(Xs, ?DEFAULT_MODE).
+
+from_list(Xs, Mode) ->
     #zipper{
         left = [],
         left_len = 0,
         right = Xs,
-        right_len = length(Xs)
+        right_len = length(Xs),
+        mode = Mode
     }.
 
 to_list(#zipper{left = Left, right = Right}) ->
