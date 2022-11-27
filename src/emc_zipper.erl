@@ -35,8 +35,8 @@
 
 -define(EMPTY_ERROR_INFO(Pos), {error_info, #{cause => #{Pos => "Empty zipper"}}}).
 
--opaque zipper() :: #zipper{}.
--export_type([zipper/0]).
+-opaque t() :: #zipper{}.
+-export_type([t/0]).
 
 new() ->
     from_list([]).
