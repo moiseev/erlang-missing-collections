@@ -23,7 +23,8 @@
 % strict - moving past either end results in an error.
 % ring - moving past either end wraps around.
 -type mode() :: lax | strict | ring.
--define(DEFAULT_MODE, lax).
+
+-define(DEFAULT_OPTIONS, #{mode => lax}).
 
 -record(zipper, {
     left,
@@ -41,19 +42,20 @@
 new() ->
     from_list([]).
 
-new(Mode) ->
-    from_list([], Mode).
+new(Options) ->
+    from_list([], Options).
 
 from_list(Xs) ->
-    from_list(Xs, ?DEFAULT_MODE).
+    from_list(Xs, #{}).
 
-from_list(Xs, Mode) ->
+from_list(Xs, Options0) ->
+    Options = maps:merge(Options0, ?DEFAULT_OPTIONS),
     #zipper{
         left = [],
         left_len = 0,
         right = Xs,
         right_len = length(Xs),
-        mode = Mode
+        mode = maps:get(mode, Options)
     }.
 
 to_list(#zipper{left = Left, right = Right}) ->
